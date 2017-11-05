@@ -28,5 +28,5 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	compileOnly('org.projectlombok:lombok:1.16.18')
-	testCompile('org.hsqldb:hsqldb:2.0.0')
+	testCompile('org.hsqldb:hsqldb:2.3.3')
 }

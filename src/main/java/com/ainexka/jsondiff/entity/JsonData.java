@@ -14,17 +14,17 @@ import javax.persistence.Table;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "json_data", schema = "ainex_owner")
+@Table(name = "json_data")
 @Getter
 @Setter
-public class JSONData implements Serializable {
+public class JsonData implements Serializable {
     private static final long serialVersionUID = 5265664959764269082L;
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "object_identifier", nullable = false)
-    private String objectIdentifier;
+    private String identifier;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

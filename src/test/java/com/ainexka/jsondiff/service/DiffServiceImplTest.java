@@ -1,12 +1,13 @@
 package com.ainexka.jsondiff.service;
 
-import com.ainexka.jsondiff.dao.JSONDataDaoImpl;
 import com.ainexka.jsondiff.entity.DataPosition;
-import com.ainexka.jsondiff.entity.JSONData;
+import com.ainexka.jsondiff.entity.JsonData;
 import com.ainexka.jsondiff.model.DiffResponse;
+import com.ainexka.jsondiff.repository.JsonRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -27,22 +28,22 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DiffServiceImplTest {
-    @Mock private JSONDataDaoImpl mockJsonDataDao;
+    @Mock private JsonRepository mockJsonRepository;
     private DiffServiceImpl diffService;
 
     @Before
     public void createFixtures() {
-        diffService = new DiffServiceImpl(mockJsonDataDao);
+        diffService = new DiffServiceImpl(mockJsonRepository);
     }
 
     @Test
     public void whenEqualDataIsComparedThenResponseShouldContainNoDifferences() {
         //given
         String id = "test";
-        List<JSONData> data = new ArrayList<>();
+        List<JsonData> data = new ArrayList<>();
         data.add(createData(id, LEFT, "{\"foo\":\"bar\"}"));
         data.add(createData(id, RIGHT, "{\"foo\":\"bar\"}"));
-        when(mockJsonDataDao.findByIdentifier(anyString())).thenReturn(data);
+        when(mockJsonRepository.findByIdentifier(anyString())).thenReturn(data);
 
         //when
         DiffResponse response = diffService.getDiff(id);
@@ -58,10 +59,10 @@ public class DiffServiceImplTest {
     public void givenDataIsDifferentInSizeWhenComparedThenResponseShouldShowDifferenceInSize() {
         //given
         String id = "test";
-        List<JSONData> data = new ArrayList<>();
+        List<JsonData> data = new ArrayList<>();
         data.add(createData(id, LEFT, "{\"foo\":\"bar\"}"));
         data.add(createData(id, RIGHT, "{\"foo\":\"barbar\"}"));
-        when(mockJsonDataDao.findByIdentifier(anyString())).thenReturn(data);
+        when(mockJsonRepository.findByIdentifier(anyString())).thenReturn(data);
 
         //when
         DiffResponse response = diffService.getDiff(id);
@@ -77,10 +78,10 @@ public class DiffServiceImplTest {
     public void givenDataIsDifferentAndOfSameSizeWhenTheyAreComparedThenResponseShouldShowDifferences() {
         //given
         String id = "test";
-        List<JSONData> data = new ArrayList<>();
+        List<JsonData> data = new ArrayList<>();
         data.add(createData(id, LEFT, "{\"foo\":\"bar\"}"));
         data.add(createData(id, RIGHT, "{\"faa\":\"ber\"}"));
-        when(mockJsonDataDao.findByIdentifier(anyString())).thenReturn(data);
+        when(mockJsonRepository.findByIdentifier(anyString())).thenReturn(data);
 
         //when
         DiffResponse response = diffService.getDiff(id);
@@ -100,9 +101,9 @@ public class DiffServiceImplTest {
     public void whenLeftDataIsNotPresentThenResponseShouldBeNull() {
         //given
         String id = "test";
-        List<JSONData> data = new ArrayList<>();
+        List<JsonData> data = new ArrayList<>();
         data.add(createData(id, RIGHT, "{\"foo\":\"bar\"}"));
-        when(mockJsonDataDao.findByIdentifier(anyString())).thenReturn(data);
+        when(mockJsonRepository.findByIdentifier(anyString())).thenReturn(data);
 
         //when
         DiffResponse response = diffService.getDiff(id);
@@ -117,19 +118,26 @@ public class DiffServiceImplTest {
         String identifier = "test";
         DataPosition position = DataPosition.LEFT;
         String json = "{\"foo\":\"bar\"}";
-
+        JsonData data = new JsonData();
+        data.setIdentifier(identifier);
+        data.setPosition(position);
+        data.setValue(json);
 
         //when
+        ArgumentCaptor<JsonData> captor = ArgumentCaptor.forClass(JsonData.class);
         diffService.save(identifier, position, json);
 
         //then
-        verify(mockJsonDataDao).saveOrUpdate(identifier, position, json);
-        verifyZeroInteractions(mockJsonDataDao);
+        verify(mockJsonRepository).save(captor.capture());
+        assertEquals(identifier, captor.getValue().getIdentifier());
+        assertEquals(position, captor.getValue().getPosition());
+        assertEquals(json, captor.getValue().getValue());
+        verifyZeroInteractions(mockJsonRepository);
     }
 
-    private JSONData createData(String objectId, DataPosition position, String value) {
-        JSONData data = new JSONData();
-        data.setObjectIdentifier(objectId);
+    private JsonData createData(String objectId, DataPosition position, String value) {
+        JsonData data = new JsonData();
+        data.setIdentifier(objectId);
         data.setPosition(position);
         data.setValue(value);
 

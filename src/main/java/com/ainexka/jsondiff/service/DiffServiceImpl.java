@@ -1,11 +1,11 @@
 package com.ainexka.jsondiff.service;
 
-import com.ainexka.jsondiff.dao.JSONDataDao;
 import com.ainexka.jsondiff.entity.DataPosition;
-import com.ainexka.jsondiff.entity.JSONData;
+import com.ainexka.jsondiff.entity.JsonData;
 import com.ainexka.jsondiff.exception.InvalidJsonException;
 import com.ainexka.jsondiff.model.DiffResponse;
 import com.ainexka.jsondiff.model.Insight;
+import com.ainexka.jsondiff.repository.JsonRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
@@ -20,23 +20,28 @@ import java.util.stream.Collectors;
 
 @Service
 public class DiffServiceImpl implements DiffService {
-    private final static Logger LOG = Logger.getLogger(DiffServiceImpl.class);
+    private static final Logger LOG = Logger.getLogger(DiffServiceImpl.class);
 
-    private JSONDataDao jsonDataDao;
+    private JsonRepository repository;
 
     @Autowired
-    public DiffServiceImpl(JSONDataDao jsonDataDao) {
-        this.jsonDataDao = jsonDataDao;
+    public DiffServiceImpl(JsonRepository repository) {
+        this.repository = repository;
     }
 
     public void save(String identifier, DataPosition position, String json) {
-        jsonDataDao.saveOrUpdate(identifier, position, json);
+        JsonData data = new JsonData();
+        data.setIdentifier(identifier);
+        data.setPosition(position);
+        data.setValue(json);
+
+        repository.save(data);
     }
 
     public DiffResponse getDiff(String objectIdentifier) {
         DiffResponse response = null;
 
-        List<JSONData> data = jsonDataDao.findByIdentifier(objectIdentifier);
+        List<JsonData> data = repository.findByIdentifier(objectIdentifier);
 
         if (data.size() == 2) {
             response = new DiffResponse();
@@ -48,14 +53,14 @@ public class DiffServiceImpl implements DiffService {
         return response;
     }
 
-    private void evaluateContent(DiffResponse diffResponse, List<JSONData> data) {
+    private void evaluateContent(DiffResponse diffResponse, List<JsonData> data) {
         Map<String, String> map1 = toMap(data.get(0).getValue());
         Map<String, String> map2 = toMap(data.get(1).getValue());
 
         diffResponse.setEqual(map1.equals(map2));
     }
 
-    private void evaluateSize(DiffResponse diffResponse, List<JSONData> data) {
+    private void evaluateSize(DiffResponse diffResponse, List<JsonData> data) {
         boolean equalSize = true;
         Map<String, String> map1 = toMap(data.get(0).getValue());
         Map<String, String> map2 = toMap(data.get(1).getValue());
@@ -71,7 +76,7 @@ public class DiffServiceImpl implements DiffService {
         diffResponse.setEqualSize(equalSize);
     }
 
-    private void evaluateInsight(DiffResponse diffResponse, List<JSONData> data) {
+    private void evaluateInsight(DiffResponse diffResponse, List<JsonData> data) {
         if (!diffResponse.isEqual() && diffResponse.isEqualSize()) {
             diffResponse.setDiffs(insights(data.get(0).getValue(), data.get(1).getValue()));
         }
