@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @AllArgsConstructor
 @ToString
-public class Insight {
+public class Diff {
     private int offset;
     private int length;
 
@@ -22,9 +22,9 @@ public class Insight {
             return false;
         }
 
-        Insight insight = (Insight) o;
+        Diff diff = (Diff) o;
 
-        return offset == insight.offset;
+        return offset == diff.offset;
     }
 
     @Override

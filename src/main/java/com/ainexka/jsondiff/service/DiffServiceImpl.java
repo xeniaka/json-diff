@@ -4,7 +4,7 @@ import com.ainexka.jsondiff.entity.DataPosition;
 import com.ainexka.jsondiff.entity.JsonData;
 import com.ainexka.jsondiff.exception.InvalidJsonException;
 import com.ainexka.jsondiff.model.DiffResponse;
-import com.ainexka.jsondiff.model.Insight;
+import com.ainexka.jsondiff.model.Diff;
 import com.ainexka.jsondiff.repository.JsonRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -93,16 +93,16 @@ public class DiffServiceImpl implements DiffService {
         }
     }
 
-    private static List<Insight> insights(String left, String right) {
+    private static List<Diff> insights(String left, String right) {
         int offset = 0;
         int length = 0;
-        Map<Integer, Insight> diffs = new HashMap<>();
+        Map<Integer, Diff> diffs = new HashMap<>();
 
         for (int index = 0; index < left.length(); index++) {
             char leftChar = left.charAt(index);
             char rightChar = right.charAt(index);
             if (leftChar == rightChar && length > 0) {
-                diffs.put(offset, new Insight(offset, length));
+                diffs.put(offset, new Diff(offset, length));
                 length = 0;
             }
             if (leftChar != rightChar) {
@@ -112,7 +112,7 @@ public class DiffServiceImpl implements DiffService {
                 length++;
             }
             if (length > 0) {
-                diffs.put(offset, new Insight(offset, length));
+                diffs.put(offset, new Diff(offset, length));
             }
         }
 

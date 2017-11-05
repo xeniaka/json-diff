@@ -11,5 +11,5 @@ import java.util.List;
 public class DiffResponse {
     private boolean equal;
     private boolean equalSize;
-    private List<Insight> diffs = new ArrayList<>();
+    private List<Diff> diffs = new ArrayList<>();
 }
