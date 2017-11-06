@@ -21,7 +21,7 @@ apply plugin: 'org.springframework.boot'
 
 jacocoTestReport {
 	reports {
-		xml.enabled = true // coveralls plugin depends on xml format report
+		xml.enabled = true
 		html.enabled = true
 	}
 }
@@ -41,4 +41,5 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	compileOnly('org.projectlombok:lombok:1.16.18')
 	testCompile('org.hsqldb:hsqldb:2.3.3')
+	compile('io.springfox:springfox-swagger2:2.7.0')
 }
