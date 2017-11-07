@@ -79,6 +79,6 @@ Result:
   ]
 }
 ```
-Explanation: The two objects show 2 differences:
-1. First difference starts at position 3 and has length equals 2 (the next characters are equal);
-2. Second difference starts at position 9 and has length equals 2.
+**Explanation**: The two objects show 2 differences:
+1. First difference starts at position 3 and has length equals 2;
+2. Second difference starts at position 9 and its length is equal 2.
