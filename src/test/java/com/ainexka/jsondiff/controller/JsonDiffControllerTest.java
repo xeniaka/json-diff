@@ -42,7 +42,7 @@ public class JsonDiffControllerTest {
     }
 
     @Test
-    public void givenValidJsonWhenLeftEndpointIsCalledThenResponseShouldBeSuccessful() throws Exception {
+    public void givenValidJson_whenLeftEndpointIsCalled_thenResponseSuccessful() throws Exception {
         //given
         String identifier = "test";
         DataPosition position = DataPosition.LEFT;
@@ -63,7 +63,7 @@ public class JsonDiffControllerTest {
     }
 
     @Test
-    public void givenInvalidJsonWhenLeftEndpointIsCalledThenResponseShouldBeSuccessful() throws Exception {
+    public void givenInvalidJson_whenLeftEndpointIsCalled_thenResponseSuccessful() throws Exception {
         //given
         String identifier = "test";
         String json = "{\"foo\":\"bar\"}";
@@ -82,7 +82,7 @@ public class JsonDiffControllerTest {
     }
 
     @Test
-    public void givenValidJsonWhenRightEndpointIsCalledThenResponseShouldBeSuccessful() throws Exception {
+    public void givenValidJson_whenRightEndpointIsCalled_thenResponseSuccessful() throws Exception {
         //given
         String identifier = "test";
         DataPosition position = DataPosition.RIGHT;
@@ -103,7 +103,7 @@ public class JsonDiffControllerTest {
     }
 
     @Test
-    public void givenInvalidJsonWhenRightEndpointIsCalledThenResponseShouldBeSuccessful() throws Exception {
+    public void givenInvalidJson_whenRightEndpointIsCalled_thenResponseSuccessful() throws Exception {
         //given
         String identifier = "test";
         String json = "{\"foo\":\"bar\"}";
@@ -122,7 +122,7 @@ public class JsonDiffControllerTest {
     }
 
     @Test
-    public void whenDiffIsCalledThenResponseShouldBeSetAsExpected() throws Exception {
+    public void whenDiffIsCalled_thenSetResponseAsExpected() throws Exception {
         //given
         String identifier = "test";
         DiffResponse expectedResponse = new DiffResponse();
@@ -143,7 +143,7 @@ public class JsonDiffControllerTest {
     }
 
     @Test
-    public void givenDifferentObjectWithSameSizewhenDiffIsCalledThenResponseShouldBeSetAsExpected() throws Exception {
+    public void givenDifferentObjectWithSameSize_whenDiffIsCalled_thenSetResponseSetAsExpected() throws Exception {
         //given
         String identifier = "test";
         DiffResponse expectedResponse = new DiffResponse();

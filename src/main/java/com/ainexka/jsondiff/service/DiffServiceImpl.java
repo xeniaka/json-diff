@@ -30,9 +30,12 @@ public class DiffServiceImpl implements DiffService {
     }
 
     public void save(String identifier, DataPosition position, String json) {
-        JsonData data = new JsonData();
-        data.setIdentifier(identifier);
-        data.setPosition(position);
+        JsonData data = repository.findByIdentifierAndPosition(identifier, position);
+        if (null == data) {
+            data = new JsonData();
+            data.setIdentifier(identifier);
+            data.setPosition(position);
+        }
         data.setValue(json);
 
         repository.save(data);

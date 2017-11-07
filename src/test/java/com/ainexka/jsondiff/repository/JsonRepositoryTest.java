@@ -13,6 +13,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
@@ -46,6 +47,21 @@ public class JsonRepositoryTest {
     }
 
     @Test
+    public void whenFindByIdentifierAnPosition_thenReturnJsonData() {
+        // given
+        persistData("test", DataPosition.RIGHT, "value1");
+        persistData("test", DataPosition.LEFT, "value2");
+        persistData("non-test", DataPosition.LEFT, "value3");
+
+        // when
+        JsonData result = repository.findByIdentifierAndPosition("test", DataPosition.LEFT);
+
+        // then
+        assertNotNull(result);
+        assertEquals("value2", result.getValue());
+    }
+
+    @Test
     public void givenNoMatch_whenFindByIdentifier_thenReturnEmptyList() {
         // given
         persistData("test", DataPosition.RIGHT, "value");
@@ -57,6 +73,19 @@ public class JsonRepositoryTest {
         // then
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void givenNoMatch_whenFindByIdentifierAndPosition_thenReturnNull() {
+        // given
+        persistData("test", DataPosition.RIGHT, "value");
+        persistData("test", DataPosition.LEFT, "value");
+
+        // when
+        JsonData result = repository.findByIdentifierAndPosition("non-existent", DataPosition.RIGHT);
+
+        // then
+        assertNull(result);
     }
 
     public void persistData(String identifier, DataPosition position, String value) {

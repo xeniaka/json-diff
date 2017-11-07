@@ -2,6 +2,7 @@ package com.ainexka.jsondiff.service;
 
 import com.ainexka.jsondiff.entity.DataPosition;
 import com.ainexka.jsondiff.entity.JsonData;
+import com.ainexka.jsondiff.exception.InvalidJsonException;
 import com.ainexka.jsondiff.model.DiffResponse;
 import com.ainexka.jsondiff.repository.JsonRepository;
 import org.junit.Before;
@@ -23,7 +24,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -37,7 +37,7 @@ public class DiffServiceImplTest {
     }
 
     @Test
-    public void whenEqualDataIsComparedThenResponseShouldContainNoDifferences() {
+    public void whenEqualDataIsCompared_thenResponseShouldContainNoDifferences() {
         //given
         String id = "test";
         List<JsonData> data = new ArrayList<>();
@@ -56,7 +56,7 @@ public class DiffServiceImplTest {
     }
 
     @Test
-    public void givenDataIsDifferentInSizeWhenComparedThenResponseShouldShowDifferenceInSize() {
+    public void givenDataIsDifferentInSize_whenCompared_thenResponseShouldShowDifferenceInSize() {
         //given
         String id = "test";
         List<JsonData> data = new ArrayList<>();
@@ -75,7 +75,7 @@ public class DiffServiceImplTest {
     }
 
     @Test
-    public void givenDataIsDifferentAndOfSameSizeWhenTheyAreComparedThenResponseShouldShowDifferences() {
+    public void givenDataIsDifferentAndOfSameSize_whenTheyAreCompared_thenResponseShouldShowDifferences() {
         //given
         String id = "test";
         List<JsonData> data = new ArrayList<>();
@@ -98,7 +98,7 @@ public class DiffServiceImplTest {
     }
 
     @Test
-    public void whenLeftDataIsNotPresentThenResponseShouldBeNull() {
+    public void whenLeftDataIsNotPresent_thenResponseShouldBeNull() {
         //given
         String id = "test";
         List<JsonData> data = new ArrayList<>();
@@ -113,15 +113,11 @@ public class DiffServiceImplTest {
     }
 
     @Test
-    public void whenSavingDataThenPersistenceShouldBeInvoked() {
+    public void whenSavingData_thenPersistenceShouldBeInvoked() {
         //given
         String identifier = "test";
         DataPosition position = DataPosition.LEFT;
         String json = "{\"foo\":\"bar\"}";
-        JsonData data = new JsonData();
-        data.setIdentifier(identifier);
-        data.setPosition(position);
-        data.setValue(json);
 
         //when
         ArgumentCaptor<JsonData> captor = ArgumentCaptor.forClass(JsonData.class);
@@ -132,7 +128,40 @@ public class DiffServiceImplTest {
         assertEquals(identifier, captor.getValue().getIdentifier());
         assertEquals(position, captor.getValue().getPosition());
         assertEquals(json, captor.getValue().getValue());
-        verifyZeroInteractions(mockJsonRepository);
+    }
+
+    @Test
+    public void whenSavingExistentData_thenPersistenceShouldBeInvoked() {
+        //given
+        String identifier = "test";
+        DataPosition position = DataPosition.LEFT;
+        String json = "{\"foo\":\"bar\"}";
+        JsonData data = createData(identifier, position, json);
+        when(mockJsonRepository.findByIdentifierAndPosition(identifier, position)).thenReturn(data);
+
+        //when
+        ArgumentCaptor<JsonData> captor = ArgumentCaptor.forClass(JsonData.class);
+        diffService.save(identifier, position, json);
+
+        //then
+        verify(mockJsonRepository).save(captor.capture());
+        assertEquals(identifier, captor.getValue().getIdentifier());
+        assertEquals(position, captor.getValue().getPosition());
+        assertEquals(json, captor.getValue().getValue());
+    }
+
+    @Test(expected = InvalidJsonException.class)
+    public void whenJsonIsInvalid_thenThrowException() {
+        //given
+        String identifier = "test";
+        String invalidJson = "{foo:bar}";
+        List<JsonData> data = new ArrayList<>();
+        data.add(createData(identifier, LEFT, invalidJson));
+        data.add(createData(identifier, RIGHT, invalidJson));
+        when(mockJsonRepository.findByIdentifier(anyString())).thenReturn(data);
+
+        //when
+        diffService.getDiff(identifier);
     }
 
     private JsonData createData(String objectId, DataPosition position, String value) {
