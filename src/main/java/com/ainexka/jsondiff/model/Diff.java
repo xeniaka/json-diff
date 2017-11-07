@@ -24,11 +24,16 @@ public class Diff {
 
         Diff diff = (Diff) o;
 
-        return offset == diff.offset;
+        if (offset != diff.offset) {
+            return false;
+        }
+        return length == diff.length;
     }
 
     @Override
     public int hashCode() {
-        return offset;
+        int result = offset;
+        result = 31 * result + length;
+        return result;
     }
 }
