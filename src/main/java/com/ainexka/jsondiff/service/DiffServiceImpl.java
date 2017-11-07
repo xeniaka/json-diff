@@ -3,12 +3,12 @@ package com.ainexka.jsondiff.service;
 import com.ainexka.jsondiff.entity.DataPosition;
 import com.ainexka.jsondiff.entity.JsonData;
 import com.ainexka.jsondiff.exception.InvalidJsonException;
-import com.ainexka.jsondiff.model.DiffResponse;
 import com.ainexka.jsondiff.model.Diff;
+import com.ainexka.jsondiff.model.DiffResponse;
 import com.ainexka.jsondiff.repository.JsonRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +19,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class DiffServiceImpl implements DiffService {
-    private static final Logger LOG = Logger.getLogger(DiffServiceImpl.class);
-
     private JsonRepository repository;
 
     @Autowired
@@ -29,7 +28,9 @@ public class DiffServiceImpl implements DiffService {
         this.repository = repository;
     }
 
+    @Override
     public void save(String identifier, DataPosition position, String json) {
+        log.debug(String.format("Saving JSON data: id=%s, position=%s", identifier, position));
         JsonData data = repository.findByIdentifierAndPosition(identifier, position);
         if (null == data) {
             data = new JsonData();
@@ -41,10 +42,12 @@ public class DiffServiceImpl implements DiffService {
         repository.save(data);
     }
 
-    public DiffResponse getDiff(String objectIdentifier) {
+    @Override
+    public DiffResponse getDiff(String identifier) {
+        log.debug(String.format("Diff for identifier=%s", identifier));
         DiffResponse response = null;
 
-        List<JsonData> data = repository.findByIdentifier(objectIdentifier);
+        List<JsonData> data = repository.findByIdentifier(identifier);
 
         if (data.size() == 2) {
             response = new DiffResponse();
@@ -91,7 +94,7 @@ public class DiffServiceImpl implements DiffService {
             return mapper.readValue(json, new TypeReference<Map<String, String>>() {
             });
         } catch (IOException e) {
-            LOG.error(String.format("JSON string '%s' could not be parsed.", json));
+            log.error(String.format("JSON string '%s' could not be parsed.", json));
             throw new InvalidJsonException();
         }
     }
