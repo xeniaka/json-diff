@@ -96,30 +96,34 @@ public class DiffServiceImpl implements DiffService {
         }
     }
 
-    private static List<Diff> insights(String left, String right) {
-        int offset = 0;
-        int length = 0;
+    private List<Diff> insights(String left, String right) {
+        int diffOffset = 0;
+        int diffLength = 0;
         Map<Integer, Diff> diffs = new HashMap<>();
 
         for (int index = 0; index < left.length(); index++) {
             char leftChar = left.charAt(index);
             char rightChar = right.charAt(index);
-            if (leftChar == rightChar && length > 0) {
-                diffs.put(offset, new Diff(offset, length));
-                length = 0;
+            if (shouldResetLength(diffLength, leftChar, rightChar)) {
+                diffs.put(diffOffset, new Diff(diffOffset, diffLength));
+                diffLength = 0;
             }
             if (leftChar != rightChar) {
-                if (length == 0) {
-                    offset = index;
+                if (diffLength == 0) {
+                    diffOffset = index;
                 }
-                length++;
+                diffLength++;
             }
-            if (length > 0) {
-                diffs.put(offset, new Diff(offset, length));
+            if (diffLength > 0) {
+                diffs.put(diffOffset, new Diff(diffOffset, diffLength));
             }
         }
 
         return diffs.values().stream()
                 .collect(Collectors.toList());
+    }
+
+    private boolean shouldResetLength(int diffLength, char leftChar, char rightChar) {
+        return leftChar == rightChar && diffLength > 0;
     }
 }
